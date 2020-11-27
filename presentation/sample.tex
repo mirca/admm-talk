@@ -1,0 +1,236 @@
+%!TEX program = xelatex
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage{blindtext}
+\usepackage{url}
+\usepackage{bm}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{tikzsymbols}
+\usepackage{cleveref}
+\usepackage{hyperref}
+\usepackage{MyMnSymbol}
+\hypersetup{
+  colorlinks = true,
+}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usefonttheme[onlymath]{serif}
+\usetheme{Execushares}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\title{Alternating Direction Method of Multipliers}
+\subtitle{\large{ELEC5470/IEDA6100A - Convex Optimization}}
+\author{\normalsize{\textbf{Vin\'icius and Prof. Daniel Palomar}}}
+\date{December, 2020}
+
+\setcounter{showSlideNumbers}{1}
+\addtobeamertemplate{footnote}{\vspace{-2pt}\advance\hsize-0.5cm}{\vspace{6pt}}
+
+\begin{document}
+	\setcounter{showProgressBar}{0}
+	\setcounter{showSlideNumbers}{0}
+
+	\frame{\titlepage}
+
+	\begin{frame}
+	  \frametitle{Contents}
+	  \begin{enumerate}
+	  \item Introduction \\ \textcolor{ExecusharesGrey}{\footnotesize\hspace{1em} The reasoning and background behind this theme}
+	  \item Lorem Text  \\ \textcolor{ExecusharesGrey}{\footnotesize\hspace{1em} Just some Lorem Ipsum for filler}
+          \item Conclusions \\ \textcolor{ExecusharesGrey}{\footnotesize\hspace{1em} Some closing thoughts}
+	  \end{enumerate}
+	\end{frame}
+
+	\setcounter{framenumber}{0}
+	\setcounter{showProgressBar}{1}
+	\setcounter{showSlideNumbers}{1}
+
+        \begin{frame}{Optimization Algorithms}
+          \begin{itemize}
+            \item Gradient Descent
+            \item Newton
+            \item Interior Point Methods (IPM)
+            \item Block Coordinate Descent (BCD)
+            \item Majorization-Minimization (MM)
+            \item Block Majorization-Minimization (BMM)
+            \item Successive Convex Approximation (SCA)
+            \pause
+            \item ...
+            \pause
+            \item \bf{Alternating Direction Method of Multipliers (ADMM)}
+          \end{itemize}
+        \end{frame}
+	\begin{frame}
+	  \frametitle{Reference}
+          \begin{itemize}
+            \item Boyd \textit{et al.} \textbf{Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers}.
+              \textit{Foundations and Trends in Machine Learning}. 2010.
+            \item Available online for \textbf{free}: \url{https://web.stanford.edu/\~boyd/papers/pdf/admm\_distr\_stats.pdf}
+            \item Citations: 13519\footnote{as of Nov. 24th 2020}
+          \end{itemize}
+	\end{frame}
+
+		\begin{frame}
+		  \frametitle{Optimization Problem}
+                  \vspace{1cm}
+                    {\huge
+                  \begin{equation}
+                     \begin{array}{ll}
+                       \underset{\bm x,~ \bm z}{\textsf{minimize}} & f(\bm x) + g(\bm z) \\
+                       \textsf{subject to} & \bm A\bm x + \bm B \bm z = \bm c
+                      \end{array}
+                 \end{equation}
+                    }
+                 \begin{itemize}
+                 \item variables: $\bm x \in \mathbb{R}^{n}$ and $\bm z \in \mathbb{R}^{m}$
+                 \item parameters: $\bm A \in \mathbb{R}^{p\times n}$, $\bm B \in \mathbb{R}^{p\times m}$, and $\bm c \in \mathbb{R}^p$
+                 \end{itemize}
+		\end{frame}
+
+                \begin{frame}
+                  \frametitle{Algorithm}
+                  \begin{itemize}
+                    \item Augmented Lagrangian:
+                      \begin{equation}
+                        L_{\rho}(\bm x, \bm z, \bm y) = \underbrace{f(\bm x) + g(\bm z) + \langle \bm y, \bm A\bm x + \bm B \bm z - \bm c \rangle}_{\text{Lagrangian}}
+                        + \dfrac{\rho}{2}\norm{\bm A\bm x + \bm B \bm z - \bm c}^2_{\mathrm{F}}
+                      \end{equation}
+                    \item ADMM consists of the iterations:
+                      \begin{align}
+                        \bm x^{k+1} & := \underset{\bm x}{\textsf{arg min}}~~ L_{\rho}(\bm x^k, \bm z^k, \bm y^k) \\
+                        \bm z^{k+1} & := \underset{\bm z}{\textsf{arg min}}~~ L_{\rho}(\bm x^{k+1}, \bm z^k, \bm y^k) \\
+                        \bm y^{k+1} & := \bm y^k + \rho\left(\bm A\bm x + \bm B \bm z - \bm c\right)
+                      \end{align}
+                  \end{itemize}
+                \end{frame}
+
+                \begin{frame}
+                \frametitle{Are sparse solutions recoverable via $\ell_1$-norm?}
+                \vspace{.4cm}
+                \begin{itemize}
+                  \item theoretically:
+                \end{itemize}
+                \begin{block}{\textbf{Theorem}}
+                  Let $\hat{\bm{\Theta}} \in \mathbb{R}^{p \times p}$ be the global minimum of (1) with $p>3$. Define $s_1 = \max_k S_{kk}$ and $s_2 = \min_{ij} S_{ij}$. If the regularization parameter $\lambda$ in (1) satisfies $\lambda \in [ (2+2\sqrt{2})(p+1)(s_1 - s_2), + \infty)$, then the estimated graph weight $\hat{W}_{ij} = - \hat{\Theta}_{ij}$ obeys
+\begin{equation}
+  \hat{W}_{ij} \geq \frac{1}{(s_1 - (p+1) s_2 + \lambda ) p } >0, \quad \forall \ i \neq j.  \nonumber
+\end{equation}
+                \end{block}
+                \begin{block}{\textbf{Proof}}
+                  Please refer to our supplementary material \Laughey
+                \end{block}
+                \end{frame}
+
+                \begin{frame}{Our framework for sparse graphs}
+                  \begin{itemize}
+                    \item nonconvex formulation:
+                  \begin{equation}
+                     \begin{array}{ll}
+                       \underset{\bm{w} \geq \mathbf{0}}{\textsf{minimize}} & \mathsf{tr}({\bm{S} \mathcal{L} \bm w })
+                       - \log {\det}(\mathcal{L} \bm{w} + \bm{J})
+                        + \sum_{i} h_{\lambda} (w_i)\\
+                      \end{array}
+                 \end{equation}
+                 $\mathcal{L}$ is the Laplacian operator and $h_\lambda(\cdot)$ is a nonconvex regularizer such as
+                 \begin{itemize}
+                   \item {\color{purple}\textit{Minimax Concave Penalty (MCP)}}
+                   \item {\color{purple}\textit{Smoothly Clipped Absolute Deviation (SCAD)}}
+                   \end{itemize}
+                 \end{itemize}
+                \end{frame}
+
+                \begin{frame}{Our framework for sparse graphs}
+          \begin{algorithm}[H]
+           \caption{Connected sparse graph learning}
+             \SetAlgoLined
+             \KwData{Sample covariance $\bm S$, $\lambda > 0$, $\hat{\bm w}^{(0)}$}
+             \KwResult{Laplacian estimation: $\mathcal{L}\hat{\bm w}^{(k)}$}
+             $k \leftarrow 1$\\
+             \While{stopping criteria not met}{
+               $\triangleright$ update $z^{(k-1)}_i = h'_{\lambda}(\hat{w}^{(k-1)}_i)$, for $i=1, \ldots, p(p-1)/2$\\
+               $\triangleright$ update $\hat{\bm w}^{(k)}  = \arg \min_{\bm w \geq \bm 0} - \log \det(\mathcal{L} \bm w + \bm J) +
+               \mathsf{tr}(\bm S \mathcal{L} \bm w ) + \sum_{i} z_i^{(k-1)}w_i $ \\
+               $\triangleright$ $k\leftarrow k+1$\\
+             }
+         \end{algorithm}
+\end{frame}
+
+    \begin{frame}{Sneak peek on the results: synthetic data}
+      \vspace{.75cm}
+       \begin{figure}[!htb]
+         \captionsetup[subfigure]{justification=centering}
+       \centering
+        \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+         \includegraphics[scale=.35]{../../graph2graph/icml_code/number-of-positive-edges.eps}
+       \end{subfigure}~~~%
+       \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+          \includegraphics[scale=.35]{../../graph2graph/icml_code/fscore.eps}
+        \end{subfigure}
+       \end{figure}
+    \end{frame}
+
+    \begin{frame}{Sneak peek on the results: S\&P 500 stocks}
+  \vspace{.5cm}
+     \begin{figure}[!htb]
+       \captionsetup[subfigure]{justification=centering}
+     \centering
+      \begin{subfigure}[t]{0.49\textwidth}
+      \centering
+       \includegraphics[scale=.45]{../../graph2graph/icml_code/sp500-admm-0-no-clipping.eps}
+       \caption{GLE-ADMM (benchmark) $\lambda = 0$}
+     \end{subfigure}~~~%
+     \begin{subfigure}[t]{0.49\textwidth}
+      \centering
+       \includegraphics[scale=.45]{../../graph2graph/icml_code/sp500-mcp-05.eps}
+       \caption{NGL-MCP (proposed) $\lambda = 0.5$}
+     \end{subfigure}
+     \end{figure}
+    \end{frame}
+
+% \begin{frame}{Sneak peek on the results: COVID-19 China}
+%  \vspace{.5cm}
+%    \begin{figure}[!htb]
+%      \captionsetup[subfigure]{justification=centering}
+%    \centering
+%     \begin{subfigure}[t]{0.49\textwidth}
+%     \centering
+%      \includegraphics[scale=.4]{../../graph2graph/icml_code/ncovdata-admm-no-clipping.eps}
+%      \caption{GLE-ADMM (benchmark) $\lambda = 0$}
+%    \end{subfigure}~~~%
+%    \begin{subfigure}[t]{0.49\textwidth}
+%     \centering
+%      \includegraphics[scale=.4]{../../graph2graph/icml_code/ncovdata-scad-06.eps}
+%      \caption{NGL-SCAD (proposed) $\lambda = 0.6$}
+%    \end{subfigure}
+%    \end{figure}
+% \end{frame}
+%
+%\begin{frame}{Sneak peek on the results: COVID-19 Brazil}
+%  \vspace{.5cm}
+%   \begin{figure}[!htb]
+%     \captionsetup[subfigure]{justification=centering}
+%   \centering
+%    \begin{subfigure}[t]{0.49\textwidth}
+%    \centering
+%     \includegraphics[scale=.4]{../../graph2graph/icml_code/covid-19/brazil-covid-admm.eps}
+%     \caption{GLE-ADMM (benchmark) $\lambda = 0$}
+%   \end{subfigure}~~~%
+%   \begin{subfigure}[t]{0.49\textwidth}
+%    \centering
+%     \includegraphics[scale=.4]{../../graph2graph/icml_code/covid-19/brazil-covid-mcp-05.eps}
+%     \caption{NGL-MCP (proposed) $\lambda = 0.5$}
+%   \end{subfigure}
+%   \end{figure}
+%\end{frame}
+
+    \begin{frame}
+      \frametitle{Reproducibility}
+    \begin{itemize}
+      \item The code for the experiments can be found at \url{https://github.com/mirca/sparseGraph} \vspace{1cm}
+      \item Convex Research Group at HKUST: {\color{purple}\url{https://www.danielppalomar.com}}
+    \end{itemize}
+    \end{frame}
+\end{document}
