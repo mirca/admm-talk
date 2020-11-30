@@ -184,7 +184,7 @@
 				\draw[fill=ExecusharesGreen,draw=none] (0cm,0cm) rectangle(\progressbar@tmpdim,0.25cm);
 
 				% bottom information
-				\node[anchor=south west] at(0cm,0.25cm) {\color{ExecusharesGrey}\tiny\vphantom{lp}\insertsection};
+				% \node[anchor=south west] at(0cm,0.25cm) {\color{ExecusharesGrey}\tiny\vphantom{lp}\insertsection};
 				% if slide numbers are active
 				\ifnum \value{showSlideNumbers}>0\relax%
 					% if slide totals are active
@@ -221,12 +221,10 @@
 \AtBeginSection{\frame{\sectionpage}}
 \setbeamertemplate{section page}
 {
-	\begin{tikzpicture}
-		% set up the entire slide as the canvas
-		\useasboundingbox (0,0) rectangle(\slidewidth,\slideheight);
-		%\fill[color=ExecusharesWhite] (0,0) rectangle(\the\paperwidth,\the\paperheight);
-		\fill[color=ExecusharesWhite] (-1cm, 2cm) rectangle (\slidewidth, \slideheight+0.1cm);
-		\fill[color=ExecusharesGreen] (-1cm, 0.5\slideheight-1cm) rectangle(\slidewidth, 0.5\slideheight+1cm);
-		\node[text width=\the\paperwidth-1cm,align=center] at (0.4\slidewidth, 0.5\slideheight) {\color{ExecusharesWhite}\Huge\textbf{\insertsection}};
-	\end{tikzpicture}
+    \begin{tikzpicture}
+        % set up the entire slide as the canvas
+        \useasboundingbox (0,0) rectangle(\slidewidth,\slideheight);
+        \fill[color=ExecusharesGreen] (-1cm, -2cm) rectangle (\slidewidth, \slideheight+0.1cm);
+        \node[text width=\the\paperwidth-1cm,align=center] at (0.425\slidewidth, 0.5\slideheight) {\color{black}\Huge\textbf{\insertsection}};
+    \end{tikzpicture}
 }
